@@ -38,9 +38,6 @@ openMiniApp({
 | Component | File | Props Used |
 |-----------|------|------------|
 | App | layout.tsx | `theme` |
-| ZMPRouter | layout.tsx | — |
-| AnimationRoutes | layout.tsx | — |
-| Route | layout.tsx | `path`, `element` |
 | SnackbarProvider | layout.tsx | — |
 | Page | index.tsx | `className`, `style` |
 | Box | index.tsx | `textAlign`, `className` |
@@ -48,6 +45,8 @@ openMiniApp({
 | Text.Title | index.tsx | `size="xLarge"` |
 | Button | index.tsx | `variant="primary"`, `suffixIcon`, `onClick` |
 | Icon | index.tsx | `icon="zi-more-grid"` |
+
+> ⚠️ `ZMPRouter`, `AnimationRoutes`, `Route` — removed from ZMP UI usage, replaced by `MemoryRouter + Routes + Route` from `react-router-dom`
 
 ### Type Import
 | Type | From | Usage |

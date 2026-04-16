@@ -20,11 +20,11 @@ source_skill: learn-react-component
 
 ```mermaid
 graph TD
-    L[Layout] --> A[App]
-    A --> SP[SnackbarProvider]
-    SP --> ZR[ZMPRouter]
-    ZR --> AR[AnimationRoutes]
-    AR --> HP[HomePage]
+    L[Layout] --> A[App - ZMP UI]
+    A --> SP[SnackbarProvider - ZMP UI]
+    SP --> MR[MemoryRouter - react-router-dom]
+    MR --> RS[Routes]
+    RS --> HP[HomePage]
     HP --> CL[Clock]
     HP --> LO[Logo]
 ```
@@ -64,19 +64,23 @@ export default HomePage;
 
 - Pattern: arrow function + default export
 - Purpose: App shell — wraps entire app with providers + routing
-- Provider nesting: `App` → `SnackbarProvider` → `ZMPRouter` → `AnimationRoutes`
+- Provider nesting: `App` → `SnackbarProvider` → `MemoryRouter` → `Routes`
 - Theme: `getSystemInfo().zaloTheme as AppProps["theme"]` — auto-detect Zalo theme
 
 ```tsx
+import { MemoryRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
+
 const Layout = () => {
   return (
-    <App theme={getSystemInfo().zaloTheme as AppProps["theme"]}>
+    <App theme={getSystemInfo().zaloTheme as AppProps['theme']}>
       <SnackbarProvider>
-        <ZMPRouter>
-          <AnimationRoutes>
-            <Route path="/" element={<HomePage />} />
-          </AnimationRoutes>
-        </ZMPRouter>
+        <MemoryRouter>
+          <Routes>
+            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+          </Routes>
+        </MemoryRouter>
       </SnackbarProvider>
     </App>
   );
@@ -84,7 +88,7 @@ const Layout = () => {
 export default Layout;
 ```
 
-> ⚠️ Missing ErrorBoundary wrapping AnimationRoutes
+> ⚠️ MUST use MemoryRouter — Zalo WebView blocks History API
 
 ## §5 Shared Components
 
@@ -127,11 +131,12 @@ function Logo(props: SVGProps<SVGSVGElement>) {
 | Component | Import From | Used In |
 |-----------|-------------|---------|
 | App | `zmp-ui` | layout.tsx |
-| ZMPRouter | `zmp-ui` | layout.tsx |
-| AnimationRoutes | `zmp-ui` | layout.tsx |
-| Route | `zmp-ui` | layout.tsx |
 | SnackbarProvider | `zmp-ui` | layout.tsx |
 | AppProps | `zmp-ui/app` | layout.tsx |
+| MemoryRouter | `react-router-dom` | layout.tsx |
+| Routes | `react-router-dom` | layout.tsx |
+| Route | `react-router-dom` | layout.tsx |
+| Navigate | `react-router-dom` | layout.tsx |
 | Page | `zmp-ui` | index.tsx |
 | Box | `zmp-ui` | index.tsx |
 | Button | `zmp-ui` | index.tsx |

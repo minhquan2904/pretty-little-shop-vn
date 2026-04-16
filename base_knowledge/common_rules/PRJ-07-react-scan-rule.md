@@ -47,9 +47,11 @@ tag: "@AI-ONLY"
 ### Routing Convention
 | # | Rule | Severity | Scan Status |
 |---|------|----------|-------------|
-| RR1 | Use ZMPRouter + AnimationRoutes from `zmp-ui` — !React Router directly | 🔴 | ✅ verified |
-| RR2 | Route path as constants — !hardcode strings | 🟠 | 🟡 only "/" exists |
-| RR3 | Lazy loading for feature pages | 🟡 | N/A (1 page) |
+| RR1 | Use `MemoryRouter + Routes + Route` from `react-router-dom` — !BrowserRouter, !HashRouter (Zalo WebView blocks HTML5 History API) | 🔴 | ✅ verified |
+| RR2 | Route paths MUST be defined as `ROUTES` constants in `src/constants/routes.ts` — !hardcode strings inline | 🟠 | 🟡 constants file added |
+| RR3 | Lazy loading for feature pages via `React.lazy()` + `Suspense` | 🟡 | N/A (1 page) |
+| RR4 | Navigation MUST use `useNavigate()` from `react-router-dom` — !`window.location.href`, !`ZMPRouter.navigate` | 🔴 | N/A (starter) |
+| RR5 | Keep ZMP UI `App` + `SnackbarProvider` wrappers outside `MemoryRouter` — required by Zalo platform | 🔴 | ✅ verified |
 
 ### Styling Convention
 | # | Rule | Severity | Scan Status |

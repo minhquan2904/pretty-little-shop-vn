@@ -56,7 +56,7 @@ Cross-check: learn-react-*/SKILL.md Guardrails vs project patterns:
 - Jotai atoms → BẮT BUỘC (!Redux, !Context API for global state)
 - useState → CHO PHÉP (local state only)
 - useEffect cleanup → BẮT BUỘC
-- ZMPRouter/AnimationRoutes → BẮT BUỘC (!React Router directly)
+- react-router-dom MemoryRouter → BẮT BUỘC (!BrowserRouter, !HashRouter, !ZMPRouter)
 - Tailwind CSS → BẮT BUỘC (!CSS Modules, !styled-components)
 - Dark mode via [zaui-theme="dark"] → BẮT BUỘC
 

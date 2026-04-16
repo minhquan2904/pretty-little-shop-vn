@@ -46,6 +46,6 @@ Each task: 1-line title + file path [NEW] + 1-2 lines properties
 ## Guardrails
 - MUST follow dependency layer order strictly (Types → API → State → Hooks → UI)
 - State: Jotai atoms for global state, useState for local
-- Routing: ZMPRouter routes from `zmp-ui`
+- Routing: `MemoryRouter + Routes + Route` from `react-router-dom` | route paths từ `src/constants/routes.ts` | navigation via `useNavigate()`
 - Components: function components, TypeScript props
 - !Angular patterns (NgModule, inject(), signal(), GeneralService, FormGroup)

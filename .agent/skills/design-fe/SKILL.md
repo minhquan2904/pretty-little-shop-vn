@@ -43,7 +43,7 @@ Rules:
 - State: Jotai atoms for global state, useState for local UI state
 - Hooks: custom hooks for reusable logic (useAuth, useFetch, etc.)
 - Style: Tailwind CSS classes, dark mode via `[zaui-theme="dark"]`
-- Routing: ZMPRouter → AnimationRoutes → Route from `zmp-ui`
+- Routing: `MemoryRouter → Routes → Route` from `react-router-dom` (Zalo WebView: !BrowserRouter, !HashRouter). Keep `App + SnackbarProvider` from `zmp-ui` outside MemoryRouter. Route paths → `ROUTES` constants in `src/constants/routes.ts`
 - !Angular patterns (NgModule, DI inject(), signal(), BehaviorSubject)
 
 ## Guardrails

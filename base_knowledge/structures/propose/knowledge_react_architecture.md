@@ -2,7 +2,9 @@
 title: React Architecture Knowledge
 tag: "@AI-ONLY"
 generated: "2026-04-15"
+updated: "2026-04-16"
 source_skill: learn-react-architecture
+changelog: "2026-04-16 — Routing migrated from ZMPRouter to react-router-dom MemoryRouter"
 ---
 
 # React Architecture — pretty-little-shop-vn
@@ -14,6 +16,7 @@ source_skill: learn-react-architecture
 | React | ^18.3.1 | package.json |
 | TypeScript | strict | tsconfig.json |
 | Vite | ^5.2.13 | vite.config.mts |
+| react-router-dom | ^6.x | package.json |
 | Jotai | ^2.12.1 | package.json |
 | ZMP SDK | latest | package.json |
 | ZMP UI | latest | package.json |
@@ -25,7 +28,7 @@ source_skill: learn-react-architecture
 ## §2 Entry Point Flow
 
 ```
-index.html → src/app.ts → CSS imports → Layout → ZMPRouter → Pages
+index.html → src/app.ts → Provider(Jotai) → Layout → MemoryRouter → Pages
 ```
 
 ### `src/app.ts` (entry)
@@ -81,22 +84,31 @@ index.html → src/app.ts → CSS imports → Layout → ZMPRouter → Pages
 |-------|-----------|------|
 | `/` | `HomePage` | `src/pages/index.tsx` |
 
-Pattern: `Layout` → `App` → `SnackbarProvider` → `ZMPRouter` → `AnimationRoutes` → `Route`
+Pattern: `app.ts(Provider)` → `Layout(App)` → `SnackbarProvider` → `MemoryRouter` → `Routes` → `Route`
 
 ```tsx
+// src/app.ts — Jotai Provider wrap (future-proof)
+import { Provider } from 'jotai';
+createRoot(...).render(<Provider><Layout /></Provider>);
+
 // src/components/layout.tsx
-<App theme={getSystemInfo().zaloTheme as AppProps["theme"]}>
+import { MemoryRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
+
+<App theme={getSystemInfo().zaloTheme as AppProps['theme']}>
   <SnackbarProvider>
-    <ZMPRouter>
-      <AnimationRoutes>
-        <Route path="/" element={<HomePage />} />
-      </AnimationRoutes>
-    </ZMPRouter>
+    <MemoryRouter>
+      <Routes>
+        <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+      </Routes>
+    </MemoryRouter>
   </SnackbarProvider>
 </App>
 ```
 
-> !React Router directly — use ZMPRouter + AnimationRoutes from `zmp-ui`
+> ⚠️ MUST use `MemoryRouter` — Zalo WebView blocks HTML5 History API
+> ✅ Keep `App` + `SnackbarProvider` from `zmp-ui` — Zalo platform requirement
 
 ## §5 Styling System
 
@@ -159,13 +171,14 @@ graph TD
 
 | Layer | Pattern | Example |
 |-------|---------|---------|
-| Entry | createRoot + React.createElement | `app.ts` |
+| Entry | createRoot + Jotai Provider | `app.ts` |
 | Shell | Function component + providers | `layout.tsx` |
-| Routing | ZMPRouter + AnimationRoutes | `layout.tsx` |
+| Routing | `MemoryRouter + Routes + Route` from react-router-dom | `layout.tsx` |
+| Route Constants | `ROUTES` const + `AppRoute` type | `src/constants/routes.ts` |
 | Pages | Function component + default export | `pages/index.tsx` |
 | Components | Function component + typed props | `clock.tsx`, `logo.tsx` |
 | Styling | Tailwind CSS + SCSS | `tailwind.scss`, `app.scss` |
-| State | Jotai atoms (not yet used) | — |
+| State | Jotai atoms (Provider ready, atoms TBD) | `app.ts` |
 | Config | app-config.json + zmp-cli.json | root |
 
 xref: react_component, react_state_service, zmp_sdk

@@ -49,13 +49,15 @@ export function setItem(key: string, value: unknown): void {
 ### Navigation Helper
 ```tsx
 // src/utils/navigation.ts
-import { useNavigate } from "zmp-ui";
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
 
 export function useAppNavigation() {
   const navigate = useNavigate();
   return {
-    goToProduct: (id: string) => navigate(`/product/${id}`),
+    goToHome: () => navigate(ROUTES.HOME),
     goBack: () => navigate(-1),
+    // goToProduct: (id: string) => navigate(`/product/${id}`),  // add when route exists
   };
 }
 ```

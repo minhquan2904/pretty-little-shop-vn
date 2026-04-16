@@ -10,6 +10,7 @@ export default () => {
     plugins: [zaloMiniApp(), react()],
     build: {
       assetsInlineLimit: 0,
+      target: "es2015",
     },
     resolve: {
       alias: {

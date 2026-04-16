@@ -15,6 +15,7 @@ source_skill: map-structures
 | **Language** | TypeScript | strict | tsconfig.json |
 | **Build** | Vite | ^5.2.13 | vite.config.mts |
 | **Platform** | Zalo Mini App (ZMP) | latest | zmp-cli.json |
+| **Routing** | react-router-dom | ^6.x | package.json |
 | **UI Library** | ZMP UI | latest | package.json |
 | **State** | Jotai | ^2.12.1 | package.json |
 | **Styling** | Tailwind CSS 3 | ^3.4.3 | tailwind.config.js |
@@ -25,7 +26,8 @@ source_skill: map-structures
 
 ## §2 Architecture Pattern
 
-**Single-Page Application (SPA)** — client-side routing via ZMPRouter
+**Single-Page Application (SPA)** — client-side routing via `react-router-dom` MemoryRouter (Zalo WebView — no HTML5 History API)
+> `App + SnackbarProvider` (ZMP UI) wrap outside MemoryRouter as Zalo platform requirement
 
 ```mermaid
 graph TD
@@ -105,15 +107,17 @@ index.html
        ├─ import "@/css/app.scss"        ← Custom styles
        ├─ import Layout
        ├─ window.APP_CONFIG = appConfig
-       └─ createRoot(#app).render(Layout)
-            └─ Layout
-                 └─ App[theme=zaloTheme]
-                      └─ SnackbarProvider
-                           └─ ZMPRouter
-                                └─ AnimationRoutes
-                                     └─ Route "/" → HomePage
-                                          ├─ Clock
-                                          └─ Logo
+       └─ createRoot(#app).render(<Provider><Layout /></Provider>)
+            └─ Provider (Jotai)
+                 └─ Layout
+                      └─ App[theme=zaloTheme]  (ZMP UI)
+                           └─ SnackbarProvider  (ZMP UI)
+                                └─ MemoryRouter  (react-router-dom)
+                                     └─ Routes
+                                          ├─ Route "/" → HomePage
+                                          └─ Route "*" → Navigate "/"
+                                               ├─ Clock
+                                               └─ Logo
 ```
 
 ## §5 Route Map
@@ -174,6 +178,7 @@ graph LR
     subgraph Runtime
         REACT[react ^18.3.1]
         REACT_DOM[react-dom ^18.3.1]
+        REACT_ROUTER[react-router-dom ^6.x]
         JOTAI[jotai ^2.12.1]
         ZMP_SDK[zmp-sdk latest]
         ZMP_UI[zmp-ui latest]
@@ -191,6 +196,7 @@ graph LR
         TS_REACT_DOM[@types/react-dom ^18.3.0]
     end
 
+    REACT_ROUTER --> REACT
     ZMP_UI --> REACT
     ZMP_SDK --> REACT
     JOTAI --> REACT
