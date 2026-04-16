@@ -1,18 +1,36 @@
-import hospital from "@/static/services/hospital.svg";
-import lung from "@/static/services/lung.svg";
-import drug from "@/static/services/drug.svg";
-import invoice from "@/static/services/invoice.svg";
-import all from "@/static/services/all.svg";
-import ServiceItem from "@/components/items/service";
+import TransitionLink from "@/components/transition-link";
+import { To } from "react-router-dom";
+
+interface CategoryItemProps {
+  emoji: string;
+  label: string;
+  to?: To;
+}
+
+function CategoryItem({ emoji, label, to }: CategoryItemProps) {
+  const children = (
+    <div className="flex flex-col items-center space-y-2">
+      <div className="h-8 w-8 flex items-center justify-center text-2xl">
+        {emoji}
+      </div>
+      <div className="text-2xs text-center w-full truncate">{label}</div>
+    </div>
+  );
+
+  if (to) {
+    return <TransitionLink to={to}>{children}</TransitionLink>;
+  }
+  return <div>{children}</div>;
+}
 
 export default function ServiceMenu() {
   return (
     <div className="grid grid-cols-5 items-center justify-center text-center text-xs">
-      <ServiceItem to="/ask" icon={hospital} label="Tư vấn" />
-      <ServiceItem to="/categories" icon={lung} label="Danh mục" />
-      <ServiceItem icon={drug} label="Toa thuốc" />
-      <ServiceItem to="/invoices" icon={invoice} label="Hóa đơn" />
-      <ServiceItem to="/services" icon={all} label="Tất cả" />
+      <CategoryItem emoji="👗" label="Váy cưới" to="/categories" />
+      <CategoryItem emoji="💍" label="Phụ kiện" to="/services" />
+      <CategoryItem emoji="👑" label="Thuê váy" to="/services" />
+      <CategoryItem emoji="🎀" label="Ưu đãi" to="/explore" />
+      <CategoryItem emoji="🛍️" label="Tất cả" to="/categories" />
     </div>
   );
 }

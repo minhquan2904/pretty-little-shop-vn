@@ -1,20 +1,23 @@
 import { ReactNode } from "react";
+import { To } from "react-router-dom";
 import TransitionLink from "./transition-link";
 
 interface RemoteDiagnosisItemProps {
   icon: ReactNode;
   title: string;
   subtitle: string;
+  to?: To;
 }
 
 export default function RemoteDiagnosisItem({
   icon,
   title,
   subtitle,
+  to = "/booking",
 }: RemoteDiagnosisItemProps) {
   return (
     <TransitionLink
-      to="/booking"
+      to={to}
       className="flex flex-col justify-center rounded-lg bg-background p-3"
     >
       <div className="flex items-center justify-center gap-2 pr-3">

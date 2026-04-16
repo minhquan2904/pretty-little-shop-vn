@@ -1,21 +1,21 @@
-import CallIcon from "@/components/icons/call";
-import ShipIcon from "@/components/icons/ship";
 import RemoteDiagnosisItem from "@/components/remote-diagnosis-item";
 import Section from "@/components/section";
 
 export default function RemoteDiagnosis() {
   return (
-    <Section className="pt-3" title="Chẩn đoán từ xa" isCard>
+    <Section className="pt-3" title="Dịch vụ đặc biệt" isCard>
       <div className="grid grid-cols-2 gap-3 self-stretch">
         <RemoteDiagnosisItem
-          icon={<CallIcon />}
-          title="Cấp cứu"
-          subtitle="BS gọi lại"
+          icon={<span className="text-3xl">✨</span>}
+          title="Tư vấn miễn phí"
+          subtitle="Đặt hẹn ngay"
+          to="/booking"
         />
         <RemoteDiagnosisItem
-          icon={<ShipIcon />}
-          title="Giao thuốc"
-          subtitle="Tận nhà"
+          icon={<span className="text-3xl">📷</span>}
+          title="Chụp ảnh cưới"
+          subtitle="Trọn gói studio"
+          to="/services"
         />
       </div>
     </Section>
