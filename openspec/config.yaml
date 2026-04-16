@@ -8,10 +8,11 @@ environment:
 
   tech_stack:
     - React 18 with TypeScript
-    - Zalo Mini App (ZMP SDK + ZMP UI)
-    - react-router-dom v6 (MemoryRouter)
+    - Zalo Mini App (ZMP SDK + ZMP UI CSS)
+    - react-router-dom v7 (createBrowserRouter + basename)
+    - react-hot-toast v2
     - Vite 5
-    - Jotai
+    - Jotai 2
     - Tailwind CSS 3
 
 # =====================================

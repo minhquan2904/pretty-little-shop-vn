@@ -2,174 +2,149 @@
 title: System Overview
 tag: "@AI-ONLY"
 generated: "2026-04-15"
-source_skill: map-structures
+updated: "2026-04-16"
+changelog: |
+  2026-04-16 — Major rewrite: full healthcare SPA with 16 routes, 161 files.
+  Router: ZMPRouter → createBrowserRouter (react-router-dom v7).
+  ZMP UI shell removed. New: state.ts, hooks.ts, router.tsx, error-boundary, react-hot-toast.
 ---
 
 # System Overview — pretty-little-shop-vn
 
 ## §1 Tech Stack
 
-| Layer | Technology | Version | Config |
-|-------|-----------|---------|--------|
+| Category | Technology | Version | Config |
+|----------|-----------|---------|--------|
 | **Framework** | React | ^18.3.1 | package.json |
 | **Language** | TypeScript | strict | tsconfig.json |
 | **Build** | Vite | ^5.2.13 | vite.config.mts |
 | **Platform** | Zalo Mini App (ZMP) | latest | zmp-cli.json |
-| **Routing** | react-router-dom | ^6.x | package.json |
-| **UI Library** | ZMP UI | latest | package.json |
+| **Routing** | react-router-dom | **^7.6.1** | package.json |
 | **State** | Jotai | ^2.12.1 | package.json |
+| **Toast** | react-hot-toast | ^2.5.2 | package.json |
+| **UI Library** | ZMP UI | ^1.11.7 | package.json (CSS only, routing REMOVED) |
 | **Styling** | Tailwind CSS 3 | ^3.4.3 | tailwind.config.js |
 | **CSS Pre** | SCSS (sass) | ^1.76.0 | package.json |
 | **PostCSS** | autoprefixer | ^10.4.19 | postcss.config.js |
 | **Plugin** | @vitejs/plugin-react | ^4.3.1 | vite.config.mts |
 | **Plugin** | zmp-vite-plugin | latest | vite.config.mts |
+| **Format** | prettier | 3.5.3 | package.json |
 
 ## §2 Architecture Pattern
 
-**Single-Page Application (SPA)** — client-side routing via `react-router-dom` MemoryRouter (Zalo WebView — no HTML5 History API)
-> `App + SnackbarProvider` (ZMP UI) wrap outside MemoryRouter as Zalo platform requirement
+**Single-Page Application (SPA)** — `createBrowserRouter` with dynamic basename for Zalo WebView.
+> `basename = /zapps/${APP_ID}` in production; `""` in dev.
 
 ```mermaid
 graph TD
-    subgraph "Browser / Zalo WebView"
-        HTML[index.html] --> APP[app.ts — Entry]
-        APP --> CSS[CSS: zaui → tailwind → app.scss]
-        APP --> LAYOUT[Layout Component]
-        LAYOUT --> PROVIDERS[App + SnackbarProvider]
-        PROVIDERS --> ROUTER[ZMPRouter + AnimationRoutes]
-        ROUTER --> PAGES[Page Components]
-        PAGES --> COMPONENTS[Shared Components]
-        COMPONENTS --> UI[ZMP UI Primitives]
-    end
-    
-    subgraph "State Layer"
-        JOTAI[Jotai Atoms — not yet used]
-    end
-
-    subgraph "Platform"
-        ZMP_SDK[ZMP SDK — getSystemInfo, openMiniApp]
-        ZALO[Zalo App Host]
-    end
-
-    LAYOUT --> ZMP_SDK
-    PAGES --> ZMP_SDK
-    ZMP_SDK --> ZALO
+    HTML[index.html] --> APP[app.ts]
+    APP --> RP[RouterProvider]
+    RP --> ROUTER[createBrowserRouter - router.tsx]
+    ROUTER --> EB[ErrorBoundary - root route]
+    ROUTER --> LAY[Layout - route element]
+    LAY --> HDR[Header - dynamic]
+    LAY --> PG[Page - Outlet + Suspense]
+    LAY --> FTR[Footer - tab nav]
+    LAY --> TOAST[Toaster - react-hot-toast]
+    LAY --> SCR[ScrollRestoration]
+    PG --> PAGES[16 Page Routes]
+    PAGES --> COMPS[Shared Components]
+    COMPS --> STATE[Jotai Atoms - state.ts]
+    STATE --> MOCK[mock.ts - current data source]
+    STATE --> ZMP_SDK[ZMP SDK - getUserInfo]
 ```
 
-## §3 Project Structure
-
-```
-pretty-little-shop-vn/
-├── index.html                  # HTML entry — CSP, viewport, #app div
-├── src/
-│   ├── app.ts                  # JS entry — CSS imports, createRoot, Layout mount
-│   ├── components/
-│   │   ├── layout.tsx          # App shell — ZMPRouter, providers, theme
-│   │   ├── clock.tsx           # Real-time clock (useState + useEffect)
-│   │   └── logo.tsx            # SVG logo (typed SVGProps)
-│   ├── pages/
-│   │   └── index.tsx           # HomePage — route "/"
-│   ├── css/
-│   │   ├── tailwind.scss       # @tailwind base/components/utilities
-│   │   └── app.scss            # Custom app styles
-│   └── static/
-│       └── bg.svg              # Background asset
-├── app-config.json             # ZMP app config (title, theme, statusBar)
-├── zmp-cli.json                # ZMP CLI metadata (framework, template, theming)
-├── package.json                # Dependencies + scripts (login, start, deploy)
-├── tsconfig.json               # TypeScript config (strict, paths @/*)
-├── vite.config.mts             # Vite config (plugins, alias, root)
-├── tailwind.config.js          # Tailwind (darkMode, purge, fonts)
-├── postcss.config.js           # PostCSS (tailwindcss + autoprefixer)
-├── base_knowledge/             # Agent knowledge base
-│   ├── common_rules/           # PRJ-06..PRJ-11 convention rules
-│   ├── standards/              # Skill standards + catalog
-│   └── structures/             # Generated knowledge files
-│       ├── propose/            # 7 knowledge_*.md files
-│       ├── apply/              # 1 knowledge_error_debug.md
-│       └── features.md         # Features registry
-├── openspec/                   # Feature pipeline configs
-│   ├── config.yaml
-│   └── config_modular_feature.yaml
-└── .agent/                     # Agent skills, workflows, agents
-    ├── skills/                 # 17 skills (learn-*, design-fe, etc.)
-    ├── workflows/              # Pipelines, standalone, steps
-    └── agents/                 # Specialist agents (react, fixbug, etc.)
-```
-
-## §4 Entry Flow
+## §3 Entry Point Flow
 
 ```
 index.html
   └─ <script src="/src/app.ts">
-       ├─ import "zmp-ui/zaui.css"       ← ZMP UI base
+       ├─ import "zmp-ui/zaui.min.css"   ← ZMP UI CSS vars
        ├─ import "@/css/tailwind.scss"   ← Tailwind directives
        ├─ import "@/css/app.scss"        ← Custom styles
-       ├─ import Layout
-       ├─ window.APP_CONFIG = appConfig
-       └─ createRoot(#app).render(<Provider><Layout /></Provider>)
-            └─ Provider (Jotai)
-                 └─ Layout
-                      └─ App[theme=zaloTheme]  (ZMP UI)
-                           └─ SnackbarProvider  (ZMP UI)
-                                └─ MemoryRouter  (react-router-dom)
-                                     └─ Routes
-                                          ├─ Route "/" → HomePage
-                                          └─ Route "*" → Navigate "/"
-                                               ├─ Clock
-                                               └─ Logo
+       ├─ import router from "@/router"  ← createBrowserRouter
+       ├─ window.APP_CONFIG = appConfig  ← app-config.json
+       └─ createRoot(#app).render(createElement(RouterProvider, { router }))
+            └─ RouterProvider
+                 └─ Layout (route element)
+                      ├─ Header (dynamic: main / back / profile)
+                      ├─ Page
+                      │    └─ Suspense
+                      │         └─ Outlet → Page Components
+                      ├─ Footer (tab nav: Home/Explore/Booking/Schedule/Profile)
+                      ├─ Toaster
+                      └─ ScrollRestoration
 ```
+
+## §4 Project Scale (Post-Expansion)
+
+| Category | Count |
+|----------|-------|
+| Pages | 15 routes (+ 404) |
+| Page sub-modules | ~30 sub-components |
+| Shared components | 18 |
+| Icon components | 16 |
+| Item components | 4 |
+| Form components | 8 |
+| Custom hooks | 2 (`useRealHeight`, `useRouteHandle`) |
+| Jotai atoms | ~22 (listings + detail + form + computed) |
+| Util functions | ~12 (format + misc + errors) |
+| Types | 12 interfaces |
+| Mock data factories | 10 |
+| Static assets | ~30 (doctors, services, explore, SVGs) |
 
 ## §5 Route Map
 
-| Path | Component | File | Status |
-|------|-----------|------|--------|
-| `/` | HomePage | `src/pages/index.tsx` | Active |
+| Path | Component | Handle |
+|------|-----------|--------|
+| `/` | `HomePage` | — |
+| `/search` | `SearchResultPage` | — |
+| `/categories` | `CategoriesPage` | `back, title:"Danh mục", noScroll` |
+| `/explore` | `ExplorePage` | — |
+| `/services` | `ServicesPage` | `back, title:"Tất cả dịch vụ"` |
+| `/service/:id` | `ServiceDetailPage` | `back, title:"custom"` |
+| `/department/:id` | `DepartmentDetailPage` | `back, title:"custom"` |
+| `/booking/:step?` | `BookingPage` | `back, title:"Đặt lịch khám"` |
+| `/ask` | `AskPage` | `back, title:"Gửi câu hỏi"` |
+| `/feedback` | `FeedbackPage` | `back, title:"Gửi phản ảnh"` |
+| `/schedule` | `ScheduleHistoryPage` | — |
+| `/schedule/:id` | `ScheduleDetailPage` | `back, title:"Chi tiết"` |
+| `/profile` | `ProfilePage` | `profile:true` |
+| `/news/:id` | `NewsPage` | `back, title:"Tin tức"` |
+| `/invoices` | `InvoicesPage` | `back, title:"Hóa đơn"` |
+| `*` | `NotFound` | — |
 
-> Single-view template — more routes expected as features are added
+## §6 State Map
 
-## §6 Build & Deploy
+```
+state.ts
+├── Listings (atom<Promise<T[]>>)
+│   ├── servicesState, doctorsState, availableTimeSlotsState
+│   ├── articlesState, schedulesState, invoicesState
+│   ├── departmentsState, departmentGroupsState
+│   ├── symptomsState, feedbackCategoriesState
+├── Detail (atomFamily → async derived)
+│   ├── serviceByIdState(id), departmentByIdState(id)
+│   ├── scheduleByIdState(id), newsByIdState(id)
+├── Computed
+│   ├── departmentHierarchyState (groups + departments joined)
+│   └── searchResultState(keyword) — loadable, 1.5s delay
+├── ZMP SDK
+│   └── userState — atomWithRefresh → getUserInfo()
+├── Forms (atomWithReset)
+│   ├── symptomFormState, bookingFormState
+│   ├── askFormState, feedbackFormState
+└── Misc
+    └── customTitleState — dynamic route title
+```
 
-| Command | Script | Tool | Purpose |
-|---------|--------|------|---------|
-| `npm run login` | `zmp login` | ZMP CLI | Authenticate Zalo account |
-| `npm run start` | `zmp start` | Vite + ZMP | Dev server (localhost) |
-| `npm run deploy` | `zmp deploy` | ZMP CLI | Deploy to Zalo platform |
+## §7 HTML Meta
 
-### Vite Config
-- Root: `./src`
-- Plugins: `zaloMiniApp()` + `react()`
-- Alias: `@` → `/src`
-- Assets: `assetsInlineLimit: 0` (no inlining)
-
-## §7 Platform Config
-
-### `app-config.json`
-| Key | Value |
-|-----|-------|
-| title | "Pretty Little Shop Vn" |
-| textColor | light: "black", dark: "white" |
-| statusBar | "transparent" |
-| actionBarHidden | true |
-| hideIOSSafeAreaBottom | true |
-
-### `zmp-cli.json`
-| Key | Value |
-|-----|-------|
-| framework | "react-typescript" |
-| cssPreProcessor | "scss" |
-| includeTailwind | true |
-| package | "zmp-ui" |
-| stateManagement | "jotai" |
-| template | "single-view" |
-| theming.color | "#007aff" |
-
-### `index.html`
 | Meta | Value |
 |------|-------|
 | CSP | `default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:` |
-| viewport | width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover |
-| theme-color | #007aff |
+| viewport | `width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover` |
+| theme-color | `#007aff` |
 
 ## §8 Dependency Graph
 
@@ -178,10 +153,11 @@ graph LR
     subgraph Runtime
         REACT[react ^18.3.1]
         REACT_DOM[react-dom ^18.3.1]
-        REACT_ROUTER[react-router-dom ^6.x]
+        REACT_ROUTER[react-router-dom ^7.6.1]
+        REACT_HOT_TOAST[react-hot-toast ^2.5.2]
         JOTAI[jotai ^2.12.1]
         ZMP_SDK[zmp-sdk latest]
-        ZMP_UI[zmp-ui latest]
+        ZMP_UI[zmp-ui ^1.11.7]
     end
 
     subgraph DevDeps
@@ -192,11 +168,11 @@ graph LR
         SASS[sass ^1.76.0]
         POSTCSS[postcss ^8.4.38]
         AUTOPREFIXER[autoprefixer ^10.4.19]
-        TS_REACT[@types/react ^18.3.1]
-        TS_REACT_DOM[@types/react-dom ^18.3.0]
+        PRETTIER[prettier 3.5.3]
     end
 
     REACT_ROUTER --> REACT
+    REACT_HOT_TOAST --> REACT
     ZMP_UI --> REACT
     ZMP_SDK --> REACT
     JOTAI --> REACT
@@ -208,13 +184,12 @@ graph LR
 
 ## §9 Scan-Verified Issues
 
-| Issue | Severity | Location |
-|-------|----------|----------|
-| Missing ErrorBoundary | 🔴 | layout.tsx |
-| Hardcoded appId | 🔴 | pages/index.tsx:26 |
-| `as any` cast | 🟠 | app.ts:19 |
-| getSystemInfo() no try/catch | 🟠 | layout.tsx:15 |
-| Hardcoded #ffffff | 🟠 | css/app.scss:8 |
-| Missing src/constants/ | 🟠 | project structure |
+| Issue | Severity | Location | Notes |
+|-------|----------|----------|-------|
+| `APP_CONFIG: any` type | 🟡 | global.d.ts | Type as `typeof appConfig` |
+| No API service layer | 🟡 | state.ts | All data mocked — migration needed |
+| No form validation | 🟠 | form pages | No client-side validation (react-hook-form not installed) |
+| No loading states visible | 🟡 | pages | Suspense fallback is `null` (no spinner shown) |
+| react-router-dom v7 | 🟠 | router.tsx | Uses `createBrowserRouter` NOT `MemoryRouter` — verify Zalo WebView compat |
 
-> Source: `/calibrate-knowledge --react --scan` (2026-04-15)
+xref: all knowledge files

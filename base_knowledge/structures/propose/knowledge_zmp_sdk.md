@@ -1,93 +1,108 @@
 ---
-title: ZMP SDK & ZMP UI Knowledge
+title: ZMP SDK Knowledge
 tag: "@AI-ONLY"
-generated: "2026-04-15"
+generated: "2026-04-16"
 source_skill: learn-zmp-sdk
 ---
 
 # ZMP SDK & ZMP UI — pretty-little-shop-vn
 
-## §1 ZMP SDK API Usage
+## §1 ZMP SDK Usage
 
-| Function | Import | File | Purpose | Error Handling |
-|----------|--------|------|---------|----------------|
-| `getSystemInfo()` | `zmp-sdk` | `layout.tsx` | Get device info + `zaloTheme` | ⚠️ No try/catch |
-| `openMiniApp()` | `zmp-sdk` | `index.tsx` | Open ZaUI Components app | ⚠️ No try/catch |
+### Installed version
+`zmp-sdk: latest` (from package.json)
 
-### `getSystemInfo()` Usage
-```tsx
-// layout.tsx:15
-<App theme={getSystemInfo().zaloTheme as AppProps["theme"]}>
-```
-- Returns: `{ zaloTheme: "light" | "dark", ... }`
-- ⚠️ Called synchronously without error wrapping
+### Active API Calls
 
-### `openMiniApp()` Usage
-```tsx
-// index.tsx:25-27
-openMiniApp({
-  appId: "1070750904448149704", // 🔴 hardcoded
-});
-```
-- Opens another Zalo Mini App by ID
-- ⚠️ No error handling, no loading state
+| API | Call | Location | Error Handling |
+|-----|------|----------|----------------|
+| `getUserInfo` | `getUserInfo({ avatarType: "normal" })` | `state.ts` — `userState` atom | `.catch(() => throw NotifiableError)` |
 
-## §2 ZMP UI Component Catalog
+### Removed ZMP SDK calls (post-refactor)
+- ❌ `getSystemInfo()` — was used for `zaloTheme`. **REMOVED** in current codebase (Tailwind CSS handles theming).
 
-### Used in Project
-| Component | File | Props Used |
-|-----------|------|------------|
-| App | layout.tsx | `theme` |
-| SnackbarProvider | layout.tsx | — |
-| Page | index.tsx | `className`, `style` |
-| Box | index.tsx | `textAlign`, `className` |
-| Text | index.tsx | (via `Text.Title`) |
-| Text.Title | index.tsx | `size="xLarge"` |
-| Button | index.tsx | `variant="primary"`, `suffixIcon`, `onClick` |
-| Icon | index.tsx | `icon="zi-more-grid"` |
+### ZMP SDK Pattern (established)
+```typescript
+import { getUserInfo } from "zmp-sdk";
 
-> ⚠️ `ZMPRouter`, `AnimationRoutes`, `Route` — removed from ZMP UI usage, replaced by `MemoryRouter + Routes + Route` from `react-router-dom`
-
-### Type Import
-| Type | From | Usage |
-|------|------|-------|
-| `AppProps` | `zmp-ui/app` | `AppProps["theme"]` — theme type |
-
-### Available but Unused
-Input, Select, Modal, Sheet, Tabs, List, Avatar, ImageViewer, Spinner, Switch, Checkbox, Radio, DatePicker, Picker
-
-## §3 Theme & Styling Integration
-
-| Config | Value | File |
-|--------|-------|------|
-| Theme source | `getSystemInfo().zaloTheme` | layout.tsx |
-| Theme type | `AppProps["theme"]` = `"light" \| "dark"` | layout.tsx |
-| Tailwind dark | `[zaui-theme="dark"]` selector | tailwind.config.js |
-| App textColor.light | "black" | app-config.json |
-| App textColor.dark | "white" | app-config.json |
-| statusBar | "transparent" | app-config.json |
-
-### Dark Mode Flow
-```
-Zalo App → sets zaui-theme attribute → Tailwind detects via selector → dark: classes activate
+// MUST wrap with try/catch or .catch()
+const user = await getUserInfo({ avatarType: "normal" })
+  .catch(() => {
+    throw new NotifiableError("Friendly error message for user");
+  });
 ```
 
-## §4 Platform Config
+## §2 ZMP UI Usage
 
-### `app-config.json`
-| Key | Value | Effect |
-|-----|-------|--------|
-| actionBarHidden | true | Hides Zalo action bar |
-| hideIOSSafeAreaBottom | true | No iOS bottom safe area |
-| hideAndroidBottomNavigationBar | false | Shows Android nav bar |
-| statusBar | "transparent" | Transparent status bar |
-| listCSS/listSyncJS/listAsyncJS | [] | No external resources |
+### Installed version
+`zmp-ui: ^1.11.7` (from package.json)
 
-## §5 Deployment
-| Command | Script | Purpose |
-|---------|--------|---------|
-| `zmp login` | `npm run login` | Authenticate with Zalo |
-| `zmp start` | `npm run start` | Dev server via Vite |
-| `zmp deploy` | `npm run deploy` | Deploy to Zalo platform |
+### CRITICAL: ZMP UI routing components **NOT USED**
+| Component | Status | Replacement |
+|-----------|--------|-------------|
+| `App` | ❌ NOT used | Native `<div>` in `layout.tsx` |
+| `SnackbarProvider` | ❌ NOT used | `react-hot-toast` `<Toaster>` |
+| `ZMPRouter` | ❌ NOT used | `createBrowserRouter` from react-router-dom |
+| `AnimationRoutes` | ❌ NOT used | React Router `<Outlet>` |
+| `Route` (zmp-ui) | ❌ NOT used | `Route` from react-router-dom |
+| `Page` (zmp-ui) | ❌ NOT used | Custom `page.tsx` with `<Outlet>` |
+| `useNavigate` (zmp-ui) | ❌ NOT used | `useNavigate` from react-router-dom |
 
-xref: react_architecture, react_component
+### ZMP UI components potentially still used (unconfirmed — check individual pages)
+> The package `zmp-ui ^1.11.7` is in dependencies but routing/shell components are removed.
+> Individual pages may use ZMP UI form/display components — verify per page.
+> Stylesheet still imported: `import "zmp-ui/zaui.min.css"` in `app.ts`
+
+### ZMP UI stylesheet
+```typescript
+// src/app.ts
+import "zmp-ui/zaui.min.css";  // CSS custom properties still loaded
+```
+CSS variables from zaui.min.css may be used by Tailwind theme (`:root {}` vars).
+
+## §3 Zalo Platform Integration
+
+### appId Configuration
+```json
+// app-config.json
+{ "app": { "title": "...", ... } }
+```
+
+### App ID pattern (router.tsx)
+```typescript
+// Zalo injects APP_ID into window
+return `/zapps/${window.APP_ID}`;  // production basename
+```
+
+### Zalo WebView constraints
+- ✅ HTML5 History API available → `createBrowserRouter` works with `basename`
+- ✅ No MemoryRouter needed (correct basename is `/zapps/${APP_ID}`)
+- Platform sets `window.APP_ID` automatically
+
+## §4 ZMP CLI Configuration
+
+| File | Purpose |
+|------|---------|
+| `zmp-cli.json` | ZMP app metadata |
+| `app-config.json` | App title, color, etc. |
+| `zmp-vite-plugin` | Vite plugin for ZMP build |
+
+### Scripts
+```json
+"login": "zmp login",
+"start": "zmp start",      // dev server
+"deploy": "zmp deploy"     // publish to Zalo
+```
+
+## §5 Rules & Conventions
+
+| # | Rule | Severity |
+|---|------|----------|
+| RZ1 | ZMP SDK calls: MUST have try/catch or .catch() | 🔴 |
+| RZ2 | Use `NotifiableError` for user-facing ZMP SDK errors | 🟠 |
+| RZ3 | !hardcode appId — use `window.APP_ID` | 🔴 |
+| RZ4 | !import routing/shell components from `zmp-ui` — use `react-router-dom` | 🔴 |
+| RZ5 | !import `getSystemInfo()` for theme — use Tailwind CSS vars | 🟠 |
+| RZ6 | `zmp-ui/zaui.min.css` MUST be imported in `app.ts` | 🟠 |
+
+xref: react_architecture, react_component, react_util

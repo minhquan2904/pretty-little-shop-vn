@@ -1,66 +1,123 @@
 ---
 title: React Hook & Helper Knowledge
 tag: "@AI-ONLY"
-generated: "2026-04-15"
+generated: "2026-04-16"
 source_skill: learn-react-hook-helper
 ---
 
 # React Custom Hooks & Helpers — pretty-little-shop-vn
 
-## §1 Custom Hooks
-- No `src/hooks/` directory exists yet
-- No custom hooks found in source
+## §1 Custom Hooks (`src/hooks.ts`)
 
-### Inline Hook Usage
-| Hook | Component | Purpose |
-|------|-----------|---------|
-| useState | Clock | Local time state |
-| useEffect | Clock | Timer interval + cleanup |
+### `useRealHeight(element, defaultValue?)`
+```typescript
+export function useRealHeight(
+  element: MutableRefObject<HTMLDivElement | null>,
+  defaultValue?: number
+): number
+```
+- Uses `ResizeObserver` to track element height dynamically
+- Cleanup: `ro.disconnect()` on unmount
+- Fallback: returns `-1` if `ResizeObserver` unavailable (SSR safe)
+- Returns: `defaultValue ?? 0` initially, then actual height
 
-## §2 Helper Functions
-- No `src/utils/` or helper files found
-- Inline helpers: `toLocaleString("vi-VN", {...})` in Clock component
+### `useRouteHandle()`
+```typescript
+export function useRouteHandle() {
+  const matches = useMatches() as UIMatch<undefined, {
+    title?: string;
+    back?: boolean;
+    scrollRestoration?: number;
+    noScroll?: boolean;
+    profile?: boolean;
+  }>[];
+  const lastMatch = matches[matches.length - 1];
+  return [lastMatch.handle ?? {}, lastMatch, matches] as const;
+}
+```
+- Returns: `[handle, lastMatch, allMatches]`
+- Used in: `Header`, `Footer`, `Page`, `ScrollRestoration`
+- Handle fields:
+  - `back`: show back button, hide footer
+  - `title`: header title string (or `"custom"` → reads `customTitleState` atom)
+  - `noScroll`: disable scroll on page container
+  - `profile`: show profile header variant
+  - `scrollRestoration`: force scroll to specific position
 
-## §3 Expected Patterns
+## §2 Hook Usage Map
 
-### Custom Hook Template
-```tsx
-// src/hooks/useFeature.ts
-import { useState, useEffect } from "react";
+| Hook | Used In | Purpose |
+|------|---------|---------|
+| `useRouteHandle` | header.tsx, footer.tsx, page.tsx, scroll-restoration.tsx | Route metadata |
+| `useRealHeight` | (available for dynamic layout calculations) | Element height tracking |
+| `useAtomValue` | header.tsx, most pages | Read Jotai atoms |
+| `useSetAtom` | error-boundary.tsx | Trigger atom refresh |
+| `useResetAtom` | form pages (booking, ask, feedback) | Reset form state |
+| `useNavigate` | header.tsx, 404.tsx | Programmatic navigation |
+| `useLocation` | header.tsx, scroll-restoration.tsx | Current route info |
+| `useMatches` | hooks.ts → useRouteHandle | All matched routes |
+| `useRouteError` | error-boundary.tsx | Route-level errors |
+| `useParams` | detail pages (service/:id, department/:id) | URL parameters |
+| `useState` | form components, UI state | Local component state |
+| `useEffect` | error-boundary.tsx, scroll-restoration.tsx, 404.tsx | Side effects |
+| `useLayoutEffect` | scroll-restoration.tsx (via hooks.ts) | Layout measurements |
+| `Suspense` | page.tsx | Async atom loading boundaries |
 
-export function useFeature(id: string) {
-  const [data, setData] = useState<Feature | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+## §3 Helper Functions (`src/utils/`)
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    getFeature(id)
-      .then((result) => { if (!cancelled) setData(result); })
-      .catch((err) => { if (!cancelled) setError(err); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };  // cleanup
-  }, [id]);
+### `src/utils/format.ts`
+| Function | Signature | Returns |
+|----------|-----------|---------|
+| `formatPrice` | `(price: number) => string` | `"100.000 VND"` (vi-VN, code style) |
+| `formatDayName` | `(date: Date) => string` | `"Thứ hai"` … `"Chủ nhật"` |
+| `formatFullDate` | `(date: Date) => string` | `"25/12/2024"` |
+| `formatShortDate` | `(date: Date) => string` | `"12.25"` |
+| `formatTimeSlot` | `({ hour, half }: TimeSlot["time"]) => string` | `"09:30"` |
 
-  return { data, loading, error };
+### `src/utils/miscellaneous.tsx`
+| Function | Signature | Returns |
+|----------|-----------|---------|
+| `getConfig<T>` | `(getter: (config) => T) => T` | Config value from `app-config.json` |
+| `wait` | `(ms: number) => Promise<void>` | Delay promise |
+| `startViewTransition` | `(callback: () => void) => void` | View Transition API wrapper |
+| `promptJSON` | `(data: unknown) => void` | Dev: toast JSON debug output |
+| `toLowerCaseNonAccentVietnamese` | `(str: string) => string` | Vietnamese accent removal |
+
+### `src/utils/errors.ts`
+```typescript
+export class NotifiableError extends Error {}
+```
+- Thrown by: `userState` atom when `getUserInfo()` fails
+- Caught by: `ErrorBoundary` → `toast.error(error.message)`
+- Pattern: custom error class for user-facing messages
+
+### `src/utils/mock.ts`
+- Mock data source for all entities (see knowledge_react_state_service.md §4)
+- Returns `Promise<T[]>` for async atom compatibility
+
+## §4 Custom Hook Templates (Established Patterns)
+
+### atomFamily Read Hook
+```typescript
+// Pattern used in detail pages
+function useService(id: number) {
+  return useAtomValue(serviceByIdState(id));
+  // Wrap in Suspense — returns T | undefined (not Promise)
 }
 ```
 
-### Formatter Helper Template
-```tsx
-// src/utils/formatters.ts
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency", currency: "VND"
-  }).format(amount);
-}
-
-export function formatDate(date: Date): string {
-  return date.toLocaleString("vi-VN", {
-    day: "2-digit", month: "2-digit", year: "numeric"
-  });
-}
+### Form Reset Hook
+```typescript
+// Used in booking flow
+const resetBooking = useResetAtom(bookingFormState);  // from jotai/utils
+// Call resetBooking() to clear form
 ```
 
-xref: react_component, react_util
+### Route Params Hook
+```typescript
+// Used in service/:id, department/:id, schedule/:id, news/:id
+const { id } = useParams<{ id: string }>();
+const numericId = Number(id);
+```
+
+xref: react_architecture, react_component, react_state_service

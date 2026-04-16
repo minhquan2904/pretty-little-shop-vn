@@ -9,10 +9,11 @@ environment:
   tech_stack:
     - React 18 with TypeScript
     - Vite 5 (via zmp-vite-plugin)
-    - Jotai (state management)
-    - react-router-dom v6 (routing — MemoryRouter for Zalo WebView)
-    - ZMP SDK (Zalo Mini App platform)
-    - ZMP UI (component library — App, SnackbarProvider, Page, Box, etc.)
+    - Jotai 2 (state management — providerless)
+    - react-router-dom v7 (createBrowserRouter + basename for Zalo WebView)
+    - react-hot-toast v2 (toast notifications)
+    - ZMP SDK (Zalo Mini App platform — getUserInfo)
+    - ZMP UI ^1.11.7 (CSS vars only — routing/shell REMOVED)
     - Tailwind CSS 3
     - SCSS
 
