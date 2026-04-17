@@ -20,6 +20,10 @@ import {
   Service,
   SymptomDescription,
   TimeSlot,
+  DressStyle,
+  Consultant,
+  BookingDressForm,
+  Measurements,
 } from "./types";
 import {
   mock7DaysTimeSlots,
@@ -32,6 +36,8 @@ import {
   mockDepartmentGroups,
   mockSymptoms,
   mockFeedbackCategories,
+  mockDressStyles,
+  mockConsultants,
 } from "./utils/mock";
 import { getUserInfo } from "zmp-sdk";
 import { toLowerCaseNonAccentVietnamese, wait } from "./utils/miscellaneous";
@@ -41,6 +47,10 @@ import { NotifiableError } from "./utils/errors";
  * Listings
  */
 export const servicesState = atom<Promise<Service[]>>(mockServices);
+
+export const dressStylesState = atom<Promise<DressStyle[]>>(mockDressStyles);
+
+export const consultantsState = atom<Promise<Consultant[]>>(mockConsultants);
 
 export const doctorsState = atom<Promise<Doctor[]>>(mockDoctors);
 
@@ -166,17 +176,10 @@ export const symptomFormState = atomWithReset<SymptomDescription>({
   images: [],
 });
 
-export const bookingFormState = atomWithReset<{
-  slot?: TimeSlot;
-  doctor?: Doctor;
-  department?: Department;
-  symptoms: string[];
-  description: string;
-  images: string[];
-}>({
-  symptoms: [],
-  description: "",
-  images: [] as string[],
+export const bookingFormState = atomWithReset<BookingDressForm>({
+  measurements: {},
+  notes: "",
+  referenceImages: [],
 });
 
 export const askFormState = atomWithReset<Inquiry>({

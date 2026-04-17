@@ -1,5 +1,5 @@
 import FabForm from "@/components/form/fab-form";
-import SymptomInquiry from "@/components/form/symptom-inquiry";
+import MeasurementForm from "@/components/form/measurement-form";
 import { bookingFormState } from "@/state";
 import { promptJSON, wait } from "@/utils/miscellaneous";
 import { useAtom } from "jotai";
@@ -13,9 +13,9 @@ export default function Step2() {
   return (
     <FabForm
       fab={{
-        children: "Đặt lịch khám",
+        children: "Xác nhận & Đặt hẹn",
         disabled:
-          !formData.symptoms.length || !formData.description.trim().length,
+          !formData.measurements?.height || !formData.measurements?.weight,
         onDisabledClick() {
           toast.error("Vui lòng điền đầy đủ thông tin!");
         },
@@ -28,7 +28,7 @@ export default function Step2() {
         });
       }}
     >
-      <SymptomInquiry value={formData} onChange={setFormData} />
+      <MeasurementForm value={formData} onChange={setFormData} />
     </FabForm>
   );
 }

@@ -27,27 +27,22 @@ export default function Step3() {
         <div className="flex w-full flex-col items-center gap-4 rounded-2xl bg-white px-4 py-8">
           <SuccessIcon />
           <div className="self-stretch text-center text-lg font-medium">
-            Đặt lịch thành công
+            Đặt hẹn thành công 🎉
           </div>
           <DashedDivider />
           <PolarizedList
             items={[
               ["Tên", userInfo.name],
-              formData.department && ["Khoa", formData.department.name],
-              formData.doctor && ["Bác sĩ", formData.doctor.name],
+              formData.dressStyle && ["Phong cách váy", formData.dressStyle.name],
+              formData.consultant && ["Tư vấn viên", formData.consultant.name],
               formData.slot && [
-                "Thời gian khám bệnh",
+                "Ngày & Giờ hẹn",
                 `${formatShortDate(formData.slot.date)} ${formatTimeSlot(formData.slot.time)}`,
               ],
-              formData.symptoms.length > 0 && [
-                "Triệu chứng",
-                formData.symptoms.join(", "),
-              ],
-              formData.description.trim().length > 0 && [
-                "Mô tả",
-                formData.description,
-              ],
-            ]}
+              formData.measurements?.height && ["Chiều cao", `${formData.measurements.height} cm`],
+              formData.measurements?.weight && ["Cân nặng", `${formData.measurements.weight} kg`],
+              formData.notes?.trim().length ? ["Ghi chú", formData.notes] : undefined,
+            ].filter(Boolean) as [React.ReactNode, React.ReactNode][]}
           />
         </div>
       </div>

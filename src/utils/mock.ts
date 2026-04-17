@@ -1,4 +1,4 @@
-import { Department, AvailableTimeSlots } from "@/types";
+import { Department, AvailableTimeSlots, DressStyle, Consultant } from "@/types";
 import TeddyNH from "@/static/doctors/teddynh.png";
 import DinhLD from "@/static/doctors/dinhld.png";
 import XungTD from "@/static/doctors/xungtd.png";
@@ -140,6 +140,24 @@ export async function mockDoctors() {
       image: TeddyNH,
       isAvailable: Math.random() > 0.3,
     },
+  ];
+}
+
+export async function mockDressStyles(): Promise<DressStyle[]> {
+  return [
+    { id: 1, name: "A-line", description: "Dáng váy chữ A nhẹ nhàng, thanh lịch và phù hợp với nhiều dáng người.", image: "" },
+    { id: 2, name: "Princess", description: "Váy công chúa lộng lẫy, bồng bềnh với tùng váy xoè rộng.", image: "" },
+    { id: 3, name: "Mermaid", description: "Váy đuôi cá quyến rũ, khoe trọn đường cong cơ thể.", image: "" },
+    { id: 4, name: "Ball Gown", description: "Dáng ball gown cổ điển, sang trọng bậc nhất cho ngày trọng đại.", image: "" },
+    { id: 5, name: "Bohemian", description: "Phong cách Boho tự do, phóng khoáng và đậm chất thơ.", image: "" }
+  ];
+}
+
+export async function mockConsultants(): Promise<Consultant[]> {
+  return [
+    { id: 1, name: "Nguyễn Lê Quỳnh", specialty: "Váy cưới Á Đông & Tối giản", image: "", isAvailable: true },
+    { id: 2, name: "Trần Minh Châu", specialty: "Váy cưới Haute Couture", image: "", isAvailable: true },
+    { id: 3, name: "Phạm Thu Hà", specialty: "Váy cưới Boho & Hiện đại", image: "", isAvailable: true }
   ];
 }
 

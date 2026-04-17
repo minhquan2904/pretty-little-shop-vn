@@ -1,4 +1,4 @@
-# ZaUI Doctor
+# Pretty Little Shop Vn
 
 <p style="display: flex; flex-wrap: wrap; gap: 4px">
   <img alt="vite" src="https://img.shields.io/github/package-json/dependency-version/Zalo-MiniApp/zaui-doctor/dev/vite" />
@@ -9,45 +9,45 @@
   <img alt="tailwindcss" src="https://img.shields.io/github/package-json/dependency-version/Zalo-MiniApp/zaui-doctor/dev/tailwindcss" />
 </p>
 
-A Zalo Mini App template perfect for hospitals, clinics, and healthcare providers looking to digitize their services.
+A React-based Zalo Mini App designed specifically for a premium Wedding Dress Shop. This app allows customers to browse featured dresses, book fitting appointments, and chat with styling consultants.
 
-|                      Demo                       |                  Entrypoint                  |
-| :---------------------------------------------: | :------------------------------------------: |
-| <img src="./docs/preview.webp" alt="Home page"> | <img src="./docs/qr.webp" alt="Entry point"> |
+|                    Demo                     |                  Entrypoint                  |
+| :-----------------------------------------: | :------------------------------------------: |
+| <img src="./docs/home.png" alt="Home page"> | <img src="./docs/qr.webp" alt="Entry point"> |
 
 ## Features
 
-- 3 forms: Booking form, Ask a question form, and Feedback form with support for multi-image upload.
-- Search functionality for doctors, departments, and news
-- List of services, departments, and news
-- Schedule and invoice management
-- Chat with Zalo OA
-- Profile page
+- **Booking Workflow**: 3-step form to book wedding dress fitting appointments (select dress style, consultant, and input body measurements).
+- **Consulting**: Ask a question or request styling advice with multi-image upload.
+- **Showcase**: List of featured dresses, promotions, and wedding blog posts.
+- **Management**: Appointment and schedule tracking.
+- **Support**: Direct chat integration with Zalo OA.
+- **Profile**: Customer profile page.
 
 ## Setup
 
 ### Using Zalo Mini App Extension
 
 1. Install [Visual Studio Code](https://code.visualstudio.com/download) and [Zalo Mini App Extension](https://mini.zalo.me/docs/dev-tools).
-1. Click on **Create Project** > Choose **ZaUI Doctor** template > Wait until the generated project is ready.
-1. **Configure App ID** and **Install Dependencies**, then navigate to the **Run** panel > **Start** to develop your Mini App 🚀
+2. Click on **Create Project** > Choose **ZaUI Doctor** template (or clone this custom source).
+3. **Configure App ID** and **Install Dependencies**, then navigate to the **Run** panel > **Start** to develop your Mini App 🚀
 
 ### Using Zalo Mini App CLI
 
 > **Note:** Vite 5 compatibility in CLI is under development. Until then, please use the Zalo Mini App Extension.
 
 1. [Install Node JS](https://nodejs.org/en/download/).
-1. [Install Zalo Mini App CLI](https://mini.zalo.me/docs/dev-tools/cli/intro/).
-1. **Download** or **clone** this repository.
-1. **Install dependencies**:
+2. [Install Zalo Mini App CLI](https://mini.zalo.me/docs/dev-tools/cli/intro/).
+3. **Download** or **clone** this repository.
+4. **Install dependencies**:
    ```bash
    npm install
    ```
-1. **Start** the dev server using `zmp-cli`:
+5. **Start** the dev server using `zmp-cli`:
    ```bash
    zmp start
    ```
-1. **Open** `localhost:3000` in your browser and start coding 🔥
+6. **Open** `localhost:3000` in your browser and start coding 🔥
 
 ### Using Zalo Mini App Studio
 
@@ -57,7 +57,7 @@ This template is built using **Vite 5.x**, which is **not compatible** with Zalo
 
 1. **Create** a Zalo Mini App ID. For instructions, please refer to the [Coffee Shop Tutorial](https://mini.zalo.me/tutorial/coffee-shop/step-1/).
 
-1. **Deploy** your mini program to Zalo using the ID created.
+2. **Deploy** your mini program to Zalo using the ID created.
 
    If you're using Zalo Mini App Extension: navigate to the Deploy panel > Login > Deploy.
 
@@ -68,11 +68,11 @@ This template is built using **Vite 5.x**, which is **not compatible** with Zalo
    zmp deploy
    ```
 
-1. Scan the **QR code** using Zalo to preview your mini program.
+3. Scan the **QR code** using Zalo to preview your mini program.
 
 ## Usage
 
-The repository contains sample UI components and features for building your healthcare application. You may modify the code to suit your specific healthcare needs.
+The repository contains sample UI components and features for building your wedding shop application. You may modify the code to suit your specific boutique needs.
 
 Here are some recipes and instructions on how to customize the application.
 
@@ -102,14 +102,14 @@ To register a new page:
 Data are loaded into view using Jotai's state, called [atoms](https://jotai.org/docs/core/atom). You can change how data are loaded without changing the UI by replacing `src/state.ts`:
 
 ```diff
-- export const doctorsState = atom<Promise<Doctor[]>>(mockDoctors);
-+ export const doctorsState = atom<Promise<Doctor[]>>(async () => {
+- export const consultantsState = atom<Promise<Consultant[]>>(mockConsultants);
++ export const consultantsState = atom<Promise<Consultant[]>>(async () => {
 +   const response = await fetch("https://");
 +   return response.json();
 + });
 ```
 
-As long as the new data satisfies the given TypeScript interface (for example, `Doctor`), no changes to the UI are required. Otherwise, feel free to refactor the interfaces and the UI to suit your DTO.
+As long as the new data satisfies the given TypeScript interface (for example, `Consultant`), no changes to the UI are required. Otherwise, feel free to refactor the interfaces and the UI to suit your DTO.
 
 ### Handle form submission
 
@@ -117,8 +117,7 @@ Modify the `onSubmit` logic in the form you want to handle submission. For examp
 
 ```diff tsx filename="src/pages/booking/step2.tsx"
 onSubmit={async () => {
--   await wait(1500);
--   promptJSON(formData);
+-   // Custom Processing
 +   const response = await fetch("https://", {
 +      method: "POST",
 +      headers: {
@@ -139,7 +138,7 @@ Modify `app-config.json` > `app.title` field.
 ```json
 {
    "app": {
-      "title": "ZaUI Doctor",
+      "title": "Pretty Little Shop Vn",
 ```
 
 ### Change OA ID
@@ -149,24 +148,19 @@ There is a CTA block to chat with Zalo OA. To change the Zalo OA for chat, modif
 ```json
 {
    "template": {
-      "name": "zaui-doctor",
+      "name": "pretty-little-shop-vn",
       "oaID": "4318657068771012646"
 ```
 
 ### Customization
 
-This template can be customized by changing 5 main colors in `src/css/app.scss`:
+This app uses a premium rose/pink theme tailored for a wedding boutique. It can be customized further by changing the main colors in `src/css/app.scss`:
 
 ```css
 :root {
-  --primary: #00abbb;
-  --primary-gradient: #00bead;
-  --highlight: #01bdaf1a;
-  --background: #f2f9f9;
+  --primary: #c2185b;
+  --primary-gradient: #e91e63;
+  --background: #fdf2f8;
   --disabled: #9a9a9a;
+}
 ```
-
-| `--primary: #31992c`                      | `--primary: #992c2c`                          |
-| ----------------------------------------- | --------------------------------------------- |
-| ![Red](./docs/customise-red.webp)         | ![Green](./docs/customise-green.webp)         |
-| ![Red](./docs/customise-red-booking.webp) | ![Green](./docs/customise-green-booking.webp) |

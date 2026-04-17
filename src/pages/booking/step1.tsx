@@ -1,6 +1,6 @@
 import DateTimePicker from "@/components/form/date-time-picker";
-import DoctorSelector from "@/components/form/doctor-selector";
-import DepartmentPicker from "@/components/form/department-picker";
+import DressStylePicker from "@/components/form/dress-style-picker";
+import ConsultantSelector from "@/components/form/consultant-selector";
 import FabForm from "@/components/form/fab-form";
 import { availableTimeSlotsState, bookingFormState } from "@/state";
 import { useAtom, useAtomValue } from "jotai";
@@ -27,13 +27,13 @@ export default function Step1() {
         }));
       }
     }
-  }, [selectedSlot]);
+  }, [selectedSlot, setFormData]);
 
   return (
     <FabForm
       fab={{
         children: "Tiếp tục",
-        disabled: !formData.slot || !formData.department || !formData.doctor,
+        disabled: !formData.slot || !formData.dressStyle || !formData.consultant,
         onClick: () => {
           navigate("/booking/2", {
             viewTransition: true,
@@ -46,14 +46,12 @@ export default function Step1() {
     >
       <div className="bg-white flex flex-col space-y-1">
         <div className="p-4">
-          <DepartmentPicker
-            label="Khoa khám"
-            placeholder="Chọn khoa khám"
-            value={formData?.department}
-            onChange={(department) =>
+          <DressStylePicker
+            value={formData?.dressStyle}
+            onChange={(dressStyle) =>
               setFormData((prev) => ({
                 ...prev,
-                department,
+                dressStyle,
               }))
             }
           />
@@ -64,12 +62,12 @@ export default function Step1() {
           slots={timeSlots}
         />
       </div>
-      <DoctorSelector
-        value={formData?.doctor}
-        onChange={(doctor) =>
+      <ConsultantSelector
+        value={formData?.consultant}
+        onChange={(consultant) =>
           setFormData((prev) => ({
             ...prev,
-            doctor,
+            consultant,
           }))
         }
       />

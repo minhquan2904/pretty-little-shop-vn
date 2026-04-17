@@ -88,3 +88,35 @@ interface Article {
   image: string;
   content: string;
 }
+
+export interface DressStyle {
+  id: number;
+  name: string;
+  description: string;
+  image?: string;
+}
+
+export interface Consultant {
+  id: number;
+  name: string;
+  specialty: string;
+  image: string;
+  isAvailable: boolean;
+}
+
+export interface Measurements {
+  height?: number;
+  weight?: number;
+  bust?: number;
+  waist?: number;
+  hips?: number;
+}
+
+export interface BookingDressForm {
+  slot?: TimeSlot;
+  dressStyle?: DressStyle;
+  consultant?: Consultant;
+  measurements?: Measurements;
+  notes?: string;
+  referenceImages?: string[];
+}

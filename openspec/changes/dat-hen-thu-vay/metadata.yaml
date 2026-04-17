@@ -1,0 +1,17 @@
+id: "PLSVN260417H3N2P"
+name: "dat-hen-thu-vay"
+type: "maintenance"
+created: "2026-04-17T16:04:00+07:00"
+summary: "Chuyển đổi luồng đặt lịch khám (y tế) sang luồng đặt hẹn thử váy cưới — Pretty Little Shop Vn"
+service:
+  - booking
+path:
+  - src/pages/booking/
+  - src/state.ts
+  - src/types.d.ts
+confluence: []
+jira: []
+schema:
+  - BookingForm
+  - AvailableTimeSlots
+  - TimeSlot

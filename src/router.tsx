@@ -82,7 +82,7 @@ const router = createBrowserRouter(
           element: <BookingPage />,
           handle: {
             back: true,
-            title: "Đặt lịch khám",
+            title: "Đặt hẹn thử váy",
           },
         },
         {
